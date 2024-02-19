@@ -51,9 +51,9 @@ const Header = () => {
   };
   const navigationHandler = (type) => {
     if (type === "movies") {
-      navigate("/explore/movies");
+      navigate("/explore/movie");
     } else {
-      navigate("/explore/tvShows");
+      navigate("/explore/tv");
     }
     setMobileMenu(false);
   };
