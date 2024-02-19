@@ -12,8 +12,12 @@ import CircleRating from "../../../components/circleRating/CircleRating";
 import PosterFallback from "../../../assets/no-poster.png";
 import LazyImg from "../../../components/lazyLoadImage/LazyImg.jsx";
 import { PlayIcon } from "../PlayIcon.jsx";
+import VideoPopup from "../../../components/videoPopup/VideoPopup.jsx";
 
 const DetailsBanner = ({ video, crew }) => {
+  const [show, setShow] = useState(false);
+  const [videoId, setVideoId] = useState(null);
+
   const { mediaType, id } = useParams();
   const { data, loading } = useFetch(`/${mediaType}/${id}`);
 
@@ -21,8 +25,11 @@ const DetailsBanner = ({ video, crew }) => {
 
   const _genres = data?.genres?.map((g) => g.id);
 
-  const director = crew?.filter((f) => f.job === "Director");
-  const writer = crew?.filter((f) => f.job === "Story" || f.job === "Writer");
+  const director = crew?.filter((f) => f?.job === "Director");
+
+  const writer = crew?.filter(
+    (f) => f?.job === "Story" || f.job === "Writer" || f?.job === "Screenplay"
+  );
 
   const toHoursAndMinutes = (totalMinutes) => {
     const hours = Math.floor(totalMinutes / 60);
@@ -60,7 +67,13 @@ const DetailsBanner = ({ video, crew }) => {
                 <Genres data={_genres} />
                 <div className="row">
                   <CircleRating rating={data?.vote_average.toFixed(1)} />
-                  <div className="playbtn" onClick={() => {}}>
+                  <div
+                    className="playbtn"
+                    onClick={() => {
+                      setShow(true);
+                      setVideoId(video.key);
+                    }}
+                  >
                     <PlayIcon />
                     <span className="text">Watch Trailer</span>
                   </div>
@@ -97,11 +110,13 @@ const DetailsBanner = ({ video, crew }) => {
                   <div className="info">
                     <span className="text bold">Director: </span>
                     <span className="text">
-                      {director?.map((d, i) => {
-                        <span key={i}>
-                          {d.name}
-                          {director?.length - 1 !== i && ", "}
-                        </span>;
+                      {director.map((d, i) => {
+                        return (
+                          <span key={i}>
+                            {d.name}
+                            {director.length - 1 !== i && ", "}
+                          </span>
+                        );
                       })}
                     </span>
                   </div>
@@ -111,16 +126,39 @@ const DetailsBanner = ({ video, crew }) => {
                     <span className="text bold">Writer: </span>
                     <span className="text">
                       {writer?.map((d, i) => {
-                        <span key={i}>
-                          {d.name}
-                          {writer?.length - 1 !== i && ", "}
-                        </span>;
+                        return (
+                          <span key={i}>
+                            {d.name}
+                            {writer?.length - 1 !== i && ", "}
+                          </span>
+                        );
+                      })}
+                    </span>
+                  </div>
+                )}
+                {data?.created_by?.length > 0 && (
+                  <div className="info">
+                    <span className="text bold">Creator: </span>
+                    <span className="text">
+                      {data?.created_by?.map((d, i) => {
+                        return (
+                          <span key={i}>
+                            {d.name}
+                            {data?.created_by?.length - 1 !== i && ", "}
+                          </span>
+                        );
                       })}
                     </span>
                   </div>
                 )}
               </div>
             </div>
+            <VideoPopup
+              show={show}
+              setShow={setShow}
+              videoId={videoId}
+              setVideoId={setVideoId}
+            />
           </ContentWrapper>
         </>
       ) : (
